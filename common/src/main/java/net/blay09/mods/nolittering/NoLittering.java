@@ -1,8 +1,11 @@
 package net.blay09.mods.nolittering;
 
-import net.blay09.mods.balm.api.Balm;
+import net.blay09.mods.balm.api.config.BalmConfig;
+import net.blay09.mods.balm.api.event.BalmEvents;
 import net.blay09.mods.balm.api.event.TickPhase;
 import net.blay09.mods.balm.api.event.TickType;
+import net.blay09.mods.balm.api.module.BalmModule;
+import net.blay09.mods.balm.api.network.BalmNetworking;
 import net.blay09.mods.nolittering.mixin.ServerPlayerGameModeAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,41 +20,13 @@ import net.minecraft.world.level.block.LeafLitterBlock;
 import net.minecraft.world.level.block.SegmentableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import net.blay09.mods.nolittering.network.ModNetworking;
 
 import java.util.Optional;
 
-public class NoLittering {
-    public static final Logger logger = LoggerFactory.getLogger(NoLittering.class);
-
+public class NoLittering implements BalmModule {
     public static final String MOD_ID = "nolittering";
 
     private static final RandomSource random = RandomSource.create();
-
-    public static void initialize() {
-        NoLitteringConfig.initialize();
-        ModNetworking.initialize(Balm.getNetworking());
-
-        Balm.getEvents().onTickEvent(TickType.ServerPlayer, TickPhase.Start, player -> {
-            if (NoLitteringConfig.getActive().punchingTreesCreatesLitter) {
-                if (player.gameMode instanceof ServerPlayerGameModeAccessor accessor) {
-                    if (accessor.getIsDestroyingBlock()) {
-                        final var level = player.level();
-                        final var pos = accessor.getDestroyPos();
-                        if (level instanceof ServerLevel serverLevel && isTree(level, pos)) {
-                            final var chancePerSecond = NoLitteringConfig.getActive().punchingLitterChance;
-                            final var chancePerTick = chancePerSecond / 20f;
-                            if (random.nextFloat() < chancePerTick) {
-                                trySpawnLitterAround(serverLevel, pos);
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
 
     private static void trySpawnLitterAround(ServerLevel level, BlockPos pos) {
         final var range = 2;
@@ -160,6 +135,37 @@ public class NoLittering {
 
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    }
+
+    @Override
+    public ResourceLocation getId() {
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, "common");
+    }
+
+    @Override
+    public void registerConfig(BalmConfig config) {
+        config.registerConfig(NoLitteringConfig.class);
+    }
+
+    @Override
+    public void registerEvents(BalmEvents events) {
+        events.onTickEvent(TickType.ServerPlayer, TickPhase.Start, player -> {
+            if (NoLitteringConfig.getActive().punchingTreesCreatesLitter) {
+                if (player.gameMode instanceof ServerPlayerGameModeAccessor accessor) {
+                    if (accessor.getIsDestroyingBlock()) {
+                        final var level = player.level();
+                        final var pos = accessor.getDestroyPos();
+                        if (level instanceof ServerLevel serverLevel && isTree(level, pos)) {
+                            final var chancePerSecond = NoLitteringConfig.getActive().punchingLitterChance;
+                            final var chancePerTick = chancePerSecond / 20f;
+                            if (random.nextFloat() < chancePerTick) {
+                                trySpawnLitterAround(serverLevel, pos);
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
 }
