@@ -6,7 +6,7 @@ Minecraft Mod. Removes Leaf Litter from world generation and provides alternativ
 
 #### Downloads
 
-[![Versions](http://cf.way2muchnoise.eu/versions/_latest.svg)](https://minecraft.curseforge.com/projects/no-littering) [![Downloads](http://cf.way2muchnoise.eu/full__downloads.svg)](https://minecraft.curseforge.com/projects/no-littering)
+[![Versions](http://cf.way2muchnoise.eu/versions/1220046_latest.svg)](https://minecraft.curseforge.com/projects/no-littering) [![Downloads](http://cf.way2muchnoise.eu/full_1220046_downloads.svg)](https://minecraft.curseforge.com/projects/no-littering)
 
 ## Contributing
 
