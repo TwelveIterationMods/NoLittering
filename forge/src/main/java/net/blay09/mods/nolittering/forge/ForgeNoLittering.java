@@ -13,7 +13,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 public class ForgeNoLittering {
 
     public ForgeNoLittering(FMLJavaModLoadingContext context) {
-        final var loadContext = new ForgeLoadContext(context.getModEventBus());
+        final var loadContext = new ForgeLoadContext(context.getModBusGroup());
         Balm.initializeMod(NoLittering.MOD_ID, loadContext, new NoLittering());
         if (FMLEnvironment.dist.isClient()) {
             BalmClient.initializeMod(NoLittering.MOD_ID, loadContext, ForgeNoLitteringClient::initialize);
