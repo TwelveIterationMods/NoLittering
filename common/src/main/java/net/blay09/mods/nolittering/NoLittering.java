@@ -1,16 +1,13 @@
 package net.blay09.mods.nolittering;
 
-import net.blay09.mods.balm.api.config.BalmConfig;
-import net.blay09.mods.balm.api.event.BalmEvents;
-import net.blay09.mods.balm.api.event.TickPhase;
-import net.blay09.mods.balm.api.event.TickType;
-import net.blay09.mods.balm.api.module.BalmModule;
-import net.blay09.mods.balm.api.network.BalmNetworking;
+import net.blay09.mods.balm.platform.config.BalmConfig;
+import net.blay09.mods.balm.platform.event.callback.ServerTickCallback;
+import net.blay09.mods.balm.platform.module.BalmModule;
 import net.blay09.mods.nolittering.mixin.ServerPlayerGameModeAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
@@ -133,13 +130,13 @@ public class NoLittering implements BalmModule {
         return false;
     }
 
-    public static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 
     @Override
-    public ResourceLocation getId() {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, "common");
+    public Identifier getId() {
+        return Identifier.fromNamespaceAndPath(MOD_ID, "common");
     }
 
     @Override
@@ -148,8 +145,8 @@ public class NoLittering implements BalmModule {
     }
 
     @Override
-    public void registerEvents(BalmEvents events) {
-        events.onTickEvent(TickType.ServerPlayer, TickPhase.Start, player -> {
+    public void initialize() {
+        ServerTickCallback.ServerPlayerTick.BEFORE.register(player -> {
             if (NoLitteringConfig.getActive().punchingTreesCreatesLitter) {
                 if (player.gameMode instanceof ServerPlayerGameModeAccessor accessor) {
                     if (accessor.getIsDestroyingBlock()) {

@@ -1,8 +1,8 @@
 package net.blay09.mods.nolittering;
 
-import net.blay09.mods.balm.api.Balm;
-import net.blay09.mods.balm.api.config.reflection.Comment;
-import net.blay09.mods.balm.api.config.reflection.Config;
+import net.blay09.mods.balm.Balm;
+import net.blay09.mods.balm.platform.config.reflection.Comment;
+import net.blay09.mods.balm.platform.config.reflection.Config;
 
 @Config(NoLittering.MOD_ID)
 public class NoLitteringConfig {
@@ -17,6 +17,6 @@ public class NoLitteringConfig {
     public float punchingLitterChance = 1f;
 
     public static NoLitteringConfig getActive() {
-        return Balm.getConfig().getActiveConfig(NoLitteringConfig.class);
+        return Balm.config().getActiveConfig(NoLitteringConfig.class);
     }
 }
