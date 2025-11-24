@@ -1,1 +1,1 @@
-- Updated to Minecraft 1.21.10
+- Fixed Leaf Litter still spawning in Dark Forest
