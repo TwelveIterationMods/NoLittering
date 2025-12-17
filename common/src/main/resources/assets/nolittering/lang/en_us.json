@@ -1,1 +1,8 @@
-{}
+{
+  "nolittering.configuration.punchingTreesCreatesLitter": "Punching Tree Creates Litter",
+  "nolittering.configuration.punchingTreesCreatesLitter.tooltip": "Whether punching trees should spawn litter around it.",
+  "nolittering.configuration.disableLitterInWorldGeneration": "Disable Litter Generation",
+  "nolittering.configuration.disableLitterInWorldGeneration.tooltip": "Whether to prevent leaf litter from generating in the world.",
+  "nolittering.configuration.punchingLitterChance": "Punching Litter Chance",
+  "nolittering.configuration.punchingLitterChance.tooltip": "The chance to spawn litter while punching trees, per second."
+}
