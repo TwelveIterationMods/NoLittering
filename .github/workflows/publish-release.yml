@@ -170,6 +170,7 @@ jobs:
       - build-common
   publish-release:
     runs-on: ubuntu-latest
+    environment: Releases
     strategy:
       matrix: ${{fromJson(needs.create-release.outputs.publish-matrix)}}
       fail-fast: false
