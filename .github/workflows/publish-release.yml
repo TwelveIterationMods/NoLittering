@@ -36,6 +36,7 @@ on:
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    environment: Releases
     outputs:
       ref: v${{ steps.bump-version.outputs.version }}
       version: ${{ steps.bump-version.outputs.version }}
