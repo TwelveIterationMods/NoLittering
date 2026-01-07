@@ -82,29 +82,39 @@ jobs:
         id: update-catalog
       - name: Create Pull Request
         if: steps.update-catalog.outputs.updated == 'true' && (github.event_name == 'workflow_dispatch' && inputs.commit_directly != 'true' || github.event_name == 'schedule')
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          commit-message: "Update dependencies"
-          title: "Update dependencies"
-          body: |
-            ## Dependency Updates
+        run: |
+          # Create and checkout branch
+          git checkout -b automations/version-catalog-${{ github.run_number }}
+          
+          # Add and commit changes
+          git add gradle/libs.versions.toml
+          git commit -m "Update version catalog"
+          
+          # Push branch to remote
+          git push origin automations/update-version-catalog-${{ github.run_number }}
+          
+          # Create pull request using GitHub CLI
+          gh pr create \
+            --title "Update version catalog" \
+            --body "## Version Catalog Updates
             
-            This PR updates the version catalog to use the following versions:
-            - **Fabric API**: ${{ steps.fabric-api.outputs.version }}
-            - **Fabric Loader**: ${{ steps.fabric-loader.outputs.version }}
-            - **NeoForm**: ${{ steps.neoform.outputs.version }}
-            - **NeoForge**: ${{ steps.neoforge.outputs.version }}
-            - **Forge**: ${{ steps.forge.outputs.version }}
-            
-            ### Changes:
-            ```
-            ${{ steps.update-catalog.outputs.changes }}
-            ```
-            
-            This PR was automatically created by the Update Version Catalog workflow.
-          branch: update/version-catalog-${{ github.run_number }}
-          delete-branch: true
+          This PR updates the version catalog to use the following versions:
+          - **Fabric API**: ${{ steps.fabric-api.outputs.version }}
+          - **Fabric Loader**: ${{ steps.fabric-loader.outputs.version }}
+          - **NeoForm**: ${{ steps.neoform.outputs.version }}
+          - **NeoForge**: ${{ steps.neoforge.outputs.version }}
+          - **Forge**: ${{ steps.forge.outputs.version }}
+          
+          ### Changes:
+          \`\`\`
+          ${{ steps.update-catalog.outputs.changes }}
+          \`\`\`
+          
+          This PR was automatically created by the Update Version Catalog workflow." \
+            --base ${{ github.ref_name }} \
+            --head automations/update-version-catalog-${{ github.run_number }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Commit and push directly
         if: steps.update-catalog.outputs.updated == 'true' && github.event_name == 'workflow_dispatch' && inputs.commit_directly == 'true'
         run: |
