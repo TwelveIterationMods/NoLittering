@@ -49,30 +49,36 @@ jobs:
       - name: Get Fabric API Version
         id: fabric-api
         uses: TwelveIterations/get-fabric-api-version@v1
+        continue-on-error: true
         with:
           minecraftVersion: "${{ steps.minecraft-version.outputs.version }}"
       - name: Get Fabric Loader Version
         id: fabric-loader
         uses: TwelveIterations/get-fabric-loader-version@v1
+        continue-on-error: true
       - name: Get NeoForm Version
         id: neoform
         uses: TwelveIterations/get-neoform-version@v1
+        continue-on-error: true
         with:
           version: "${{ steps.minecraft-version.outputs.version }}-*"
       - name: Get NeoForge Version
         id: neoforge
         uses: TwelveIterations/get-neoforge-version@v1
+        continue-on-error: true
         with:
           version: "${{ steps.minecraft-version.outputs.stripped_version }}.*"
       - name: Get Forge Version
         id: forge
         uses: TwelveIterations/get-forge-version@v1
+        continue-on-error: true
         with:
           minecraftVersion: "${{ steps.minecraft-version.outputs.version }}"
           channel: "latest"
       - name: Get Balm Version
         id: balm
         uses: TwelveIterations/get-nexus-version@v1
+        continue-on-error: true
         with:
           nexusUrl: 'https://maven.twelveiterations.com'
           repository: 'maven-releases'
@@ -82,22 +88,34 @@ jobs:
       - name: Update version catalog
         run: |
           # Update Fabric API
-          sed -i 's|^\s*fabricApi\s*=\s*".*"|fabricApi = "${{ steps.fabric-api.outputs.version }}"|' gradle/libs.versions.toml
+          if [ -n "${{ steps.fabric-api.outputs.version }}" ]; then
+            sed -i 's|^\s*fabricApi\s*=\s*".*"|fabricApi = "${{ steps.fabric-api.outputs.version }}"|' gradle/libs.versions.toml
+          fi
           
           # Update Fabric Loader
-          sed -i 's|^\s*fabricLoader\s*=\s*".*"|fabricLoader = "${{ steps.fabric-loader.outputs.version }}"|' gradle/libs.versions.toml
+          if [ -n "${{ steps.fabric-loader.outputs.version }}" ]; then
+            sed -i 's|^\s*fabricLoader\s*=\s*".*"|fabricLoader = "${{ steps.fabric-loader.outputs.version }}"|' gradle/libs.versions.toml
+          fi
           
           # Update NeoForm
-          sed -i 's|^\s*neoForm\s*=\s*".*"|neoForm = "${{ steps.neoform.outputs.version }}"|' gradle/libs.versions.toml
+          if [ -n "${{ steps.neoform.outputs.version }}" ]; then
+            sed -i 's|^\s*neoForm\s*=\s*".*"|neoForm = "${{ steps.neoform.outputs.version }}"|' gradle/libs.versions.toml
+          fi
           
           # Update NeoForge
-          sed -i 's|^\s*neoForge\s*=\s*".*"|neoForge = "${{ steps.neoforge.outputs.version }}"|' gradle/libs.versions.toml
+          if [ -n "${{ steps.neoforge.outputs.version }}" ]; then
+            sed -i 's|^\s*neoForge\s*=\s*".*"|neoForge = "${{ steps.neoforge.outputs.version }}"|' gradle/libs.versions.toml
+          fi
           
           # Update Forge
-          sed -i 's|^\s*forge\s*=\s*".*"|forge = "${{ steps.forge.outputs.version }}"|' gradle/libs.versions.toml
+          if [ -n "${{ steps.forge.outputs.version }}" ]; then
+            sed -i 's|^\s*forge\s*=\s*".*"|forge = "${{ steps.forge.outputs.version }}"|' gradle/libs.versions.toml
+          fi
           
           # Update Balm
-          sed -i 's|^\s*balm\s*=\s*".*"|balm = "${{ steps.balm.outputs.version }}"|' gradle/libs.versions.toml
+          if [ -n "${{ steps.balm.outputs.version }}" ]; then
+            sed -i 's|^\s*balm\s*=\s*".*"|balm = "${{ steps.balm.outputs.version }}"|' gradle/libs.versions.toml
+          fi
           
           # Check if there are changes
           if git diff --quiet gradle/libs.versions.toml; then
