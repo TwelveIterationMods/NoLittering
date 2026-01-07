@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       minecraft_version:
-        description: 'Minecraft version (defaults to selected branch)'
+        description: 'Minecraft Version (optional)'
         required: false
         type: string
       commit_directly:
@@ -178,7 +178,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Commit and push directly
-        if: steps.update-catalog.outputs.updated == 'true' && inputs.commit_directly == true
+        if: steps.update-catalog.outputs.updated == 'true' && (inputs.commit_directly == true || steps.branch-check.outputs.branch_exists == 'false')
         run: |
           TARGET_BRANCH="${{ steps.branch-check.outputs.target_branch }}"
           
