@@ -55,6 +55,15 @@ jobs:
         with:
           minecraftVersion: "1.21.11"
           channel: "latest"
+      - name: Get Balm Version
+        id: balm
+        uses: TwelveIterations/get-nexus-version@v1
+        with:
+          nexusUrl: 'https://maven.twelveiterations.com'
+          repository: 'maven-releases'
+          groupId: 'net.blay09.mods'
+          artifactId: 'balm-common'
+          version: '21.11.*'
       - name: Update version catalog
         run: |
           # Update Fabric API
@@ -71,6 +80,9 @@ jobs:
           
           # Update Forge
           sed -i 's|^\s*forge\s*=\s*".*"|forge = "${{ steps.forge.outputs.version }}"|' gradle/libs.versions.toml
+          
+          # Update Balm
+          sed -i 's|^\s*balm\s*=\s*".*"|balm = "${{ steps.balm.outputs.version }}"|' gradle/libs.versions.toml
           
           # Check if there are changes
           if git diff --quiet gradle/libs.versions.toml; then
@@ -103,6 +115,7 @@ jobs:
           - **NeoForm**: ${{ steps.neoform.outputs.version }}
           - **NeoForge**: ${{ steps.neoforge.outputs.version }}
           - **Forge**: ${{ steps.forge.outputs.version }}
+          - **Balm**: ${{ steps.balm.outputs.version }}
           
           This PR was automatically created by the Update Version Catalog workflow." \
             --base ${{ github.ref_name }} \
