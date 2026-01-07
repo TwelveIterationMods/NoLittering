@@ -1,0 +1,119 @@
+name: Update Version Catalog
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_directly:
+        description: 'Commit directly instead of creating a pull request'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  update-version-catalog:
+    runs-on: ubuntu-latest
+    environment: Releases
+    steps:
+      - uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ vars.AUTOMATIONS_APP_ID }}
+          private-key: ${{ secrets.AUTOMATIONS_PRIVATE_KEY }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+      - name: Get GitHub App User ID
+        id: get-user-id
+        run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      - run: |
+          git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config --global user.email '${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+      - name: Get Fabric API Version
+        id: fabric-api
+        uses: TwelveIterations/get-fabric-api-version@v1
+        with:
+          minecraftVersion: "1.21.11"
+      - name: Get Fabric Loader Version
+        id: fabric-loader
+        uses: TwelveIterations/get-fabric-loader-version@v1
+      - name: Get NeoForm Version
+        id: neoform
+        uses: TwelveIterations/get-neoform-version@v1
+        with:
+          version: "1.21.11-*"
+      - name: Get NeoForge Version
+        id: neoforge
+        uses: TwelveIterations/get-neoforge-version@v1
+        with:
+          version: "21.11.*"
+      - name: Get Forge Version
+        id: forge
+        uses: TwelveIterations/get-forge-version@v1
+        with:
+          minecraftVersion: "1.21.11"
+          channel: "latest"
+      - name: Update version catalog
+        run: |
+          # Update Fabric API
+          sed -i 's|^\s*fabricApi\s*=\s*".*"|fabricApi = "${{ steps.fabric-api.outputs.version }}"|' gradle/libs.versions.toml
+          
+          # Update Fabric Loader
+          sed -i 's|^\s*fabricLoader\s*=\s*".*"|fabricLoader = "${{ steps.fabric-loader.outputs.version }}"|' gradle/libs.versions.toml
+          
+          # Update NeoForm
+          sed -i 's|^\s*neoForm\s*=\s*".*"|neoForm = "${{ steps.neoform.outputs.version }}"|' gradle/libs.versions.toml
+          
+          # Update NeoForge
+          sed -i 's|^\s*neoForge\s*=\s*".*"|neoForge = "${{ steps.neoforge.outputs.version }}"|' gradle/libs.versions.toml
+          
+          # Update Forge
+          sed -i 's|^\s*forge\s*=\s*".*"|forge = "${{ steps.forge.outputs.version }}"|' gradle/libs.versions.toml
+          
+          # Check if there are changes
+          if git diff --quiet gradle/libs.versions.toml; then
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+            echo "changes=$(git diff gradle/libs.versions.toml)" >> "$GITHUB_OUTPUT"
+          fi
+        id: update-catalog
+      - name: Create Pull Request
+        if: steps.update-catalog.outputs.updated == 'true' && (github.event_name == 'workflow_dispatch' && inputs.commit_directly != 'true' || github.event_name == 'schedule')
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          commit-message: "Update dependencies"
+          title: "Update dependencies"
+          body: |
+            ## Dependency Updates
+            
+            This PR updates the version catalog to use the following versions:
+            - **Fabric API**: ${{ steps.fabric-api.outputs.version }}
+            - **Fabric Loader**: ${{ steps.fabric-loader.outputs.version }}
+            - **NeoForm**: ${{ steps.neoform.outputs.version }}
+            - **NeoForge**: ${{ steps.neoforge.outputs.version }}
+            - **Forge**: ${{ steps.forge.outputs.version }}
+            
+            ### Changes:
+            ```
+            ${{ steps.update-catalog.outputs.changes }}
+            ```
+            
+            This PR was automatically created by the Update Version Catalog workflow.
+          branch: update/version-catalog-${{ github.run_number }}
+          delete-branch: true
+      - name: Commit and push directly
+        if: steps.update-catalog.outputs.updated == 'true' && github.event_name == 'workflow_dispatch' && inputs.commit_directly == 'true'
+        run: |
+          git add gradle/libs.versions.toml
+          git commit -m "Update version catalog"
+          git push origin ${BRANCH_NAME}
+        env:
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      - name: No update needed
+        if: steps.update-catalog.outputs.updated == 'false'
+        run: |
+          echo "Version catalog is already up to date"
