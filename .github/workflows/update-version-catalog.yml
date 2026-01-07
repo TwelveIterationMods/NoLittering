@@ -87,6 +87,9 @@ jobs:
           version: '${{ steps.minecraft-version.outputs.stripped_version }}.*'
       - name: Update version catalog
         run: |
+          # Update Minecraft Version
+          sed -i 's|^\s*minecraft\s*=\s*".*"|minecraft = "${{ steps.minecraft-version.outputs.version }}"|' gradle/libs.versions.toml
+          
           # Update Fabric API
           if [ -n "${{ steps.fabric-api.outputs.version }}" ]; then
             sed -i 's|^\s*fabricApi\s*=\s*".*"|fabricApi = "${{ steps.fabric-api.outputs.version }}"|' gradle/libs.versions.toml
