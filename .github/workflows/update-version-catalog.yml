@@ -92,7 +92,7 @@ jobs:
           fi
         id: update-catalog
       - name: Create Pull Request
-        if: steps.update-catalog.outputs.updated == 'true' && inputs.commit_directly == 'false'
+        if: steps.update-catalog.outputs.updated == 'true' && inputs.commit_directly == false
         run: |
           # Create and checkout branch
           git checkout -b automations/version-catalog-${{ github.run_number }}
@@ -123,7 +123,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Commit and push directly
-        if: steps.update-catalog.outputs.updated == 'true' && inputs.commit_directly == 'true'
+        if: steps.update-catalog.outputs.updated == 'true' && inputs.commit_directly == true
         run: |
           git add gradle/libs.versions.toml
           git commit -m "Update version catalog"
