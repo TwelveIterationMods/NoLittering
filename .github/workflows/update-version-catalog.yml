@@ -77,11 +77,10 @@ jobs:
             echo "updated=false" >> "$GITHUB_OUTPUT"
           else
             echo "updated=true" >> "$GITHUB_OUTPUT"
-            echo "changes=$(git diff gradle/libs.versions.toml)" >> "$GITHUB_OUTPUT"
           fi
         id: update-catalog
       - name: Create Pull Request
-        if: steps.update-catalog.outputs.updated == 'true' && (github.event_name == 'workflow_dispatch' && inputs.commit_directly != 'true' || github.event_name == 'schedule')
+        if: steps.update-catalog.outputs.updated == 'true' && inputs.commit_directly != 'true'
         run: |
           # Create and checkout branch
           git checkout -b automations/version-catalog-${{ github.run_number }}
@@ -91,7 +90,7 @@ jobs:
           git commit -m "Update version catalog"
           
           # Push branch to remote
-          git push origin automations/update-version-catalog-${{ github.run_number }}
+          git push origin automations/version-catalog-${{ github.run_number }}
           
           # Create pull request using GitHub CLI
           gh pr create \
@@ -105,14 +104,9 @@ jobs:
           - **NeoForge**: ${{ steps.neoforge.outputs.version }}
           - **Forge**: ${{ steps.forge.outputs.version }}
           
-          ### Changes:
-          \`\`\`
-          ${{ steps.update-catalog.outputs.changes }}
-          \`\`\`
-          
           This PR was automatically created by the Update Version Catalog workflow." \
             --base ${{ github.ref_name }} \
-            --head automations/update-version-catalog-${{ github.run_number }}
+            --head automations/version-catalog-${{ github.run_number }}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
       - name: Commit and push directly
