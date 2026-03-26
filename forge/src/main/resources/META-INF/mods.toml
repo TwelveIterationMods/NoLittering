@@ -3,31 +3,31 @@ loaderVersion="*"
 license="${license}"
 issueTrackerURL="${issues}"
 [[mods]]
-modId="${mod_id}"
+modId="nolittering"
 version="${version}"
 displayName="${mod_name}"
 displayURL="${homepage}"
-logoFile="${mod_id}.png"
+logoFile="nolittering.png"
 credits="${credits}"
 authors="${mod_author}"
 description='''${description}'''
 [[mixins]]
-config = "${mod_id}.mixins.json"
+config = "nolittering.mixins.json"
 [[mixins]]
-config = "${mod_id}.forge.mixins.json"
-[[dependencies.${mod_id}]]
+config = "nolittering.forge.mixins.json"
+[[dependencies.nolittering]]
 modId="forge"
 mandatory=true
 versionRange="[${forge_version},)"
 ordering="NONE"
 side="BOTH"
-[[dependencies.${mod_id}]]
+[[dependencies.nolittering]]
 modId="minecraft"
 mandatory=true
 versionRange="[${minecraft_version},)"
 ordering="NONE"
 side="BOTH"
-[[dependencies.${mod_id}]]
+[[dependencies.nolittering]]
 modId="balm"
 mandatory=true
 versionRange="[${balm_version},)"

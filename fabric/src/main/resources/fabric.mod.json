@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "${mod_id}",
+  "id": "nolittering",
   "version": "${version}",
 
   "name": "${mod_name}",
@@ -15,23 +15,23 @@
   },
 
   "license": "${license}",
-  "icon": "${mod_id}.png",
+  "icon": "nolittering.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "${group}.${mod_id}.fabric.Fabric${mod_main}"
+      "net.blay09.mods.nolittering.fabric.FabricNoLittering"
     ],
     "client": [
-      "${group}.${mod_id}.fabric.client.Fabric${mod_main}Client"
+      "net.blay09.mods.nolittering.fabric.client.FabricNoLitteringClient"
     ],
     "fabric-datagen": [
-      "${group}.${mod_id}.fabric.datagen.ModDataGenerator"
+      "net.blay09.mods.nolittering.fabric.datagen.ModDataGenerator"
     ]
   },
   "mixins": [
-    "${mod_id}.mixins.json",
-    "${mod_id}.fabric.mixins.json"
+    "nolittering.mixins.json",
+    "nolittering.fabric.mixins.json"
   ],
   "depends": {
     "java": ">=${java_version}",
